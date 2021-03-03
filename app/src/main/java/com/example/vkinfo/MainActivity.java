@@ -28,14 +28,18 @@ import static com.example.vkinfo.utils.NetworkUtils.getResponseFromURL;
 public class MainActivity extends AppCompatActivity {
 
     private EditText searchField;
+    private Button searchClear;
     private Button searchButton;
     private TextView errorMessage;
     private ProgressBar loadingIndicator;
 
 
     private void showErrorText() {
-
         errorMessage.setVisibility(View.VISIBLE);
+    }
+
+    private void hideErrorText() {
+        errorMessage.setVisibility(View.INVISIBLE);
     }
 
     //запрос к серверу ВК
@@ -84,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         searchField = findViewById(R.id.et_search_field);
+        searchClear = findViewById(R.id.et_search_clear);
         searchButton = findViewById(R.id.b_exe);
         errorMessage = findViewById(R.id.tv_error_message);
         loadingIndicator = findViewById(R.id.pb_loading_indicator);
@@ -91,12 +96,23 @@ public class MainActivity extends AppCompatActivity {
         View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                URL generatedURL = generateURL(searchField.getText().toString());
-                new VKQueryTask().execute(generatedURL);
+                if(!searchField.getText().toString().contains(" ")) {
+                    hideErrorText();
+                    URL generatedURL = generateURL(searchField.getText().toString());
+                    new VKQueryTask().execute(generatedURL);
+                }else showErrorText();
+            }
+        };
+
+        View.OnClickListener onClearListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchField.setText("");
             }
         };
 
         searchButton.setOnClickListener(onClickListener);
+        searchClear.setOnClickListener(onClearListener);
 
     }
 }
