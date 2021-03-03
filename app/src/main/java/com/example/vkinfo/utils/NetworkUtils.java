@@ -13,6 +13,7 @@ import java.net.UnknownHostException;
 import java.util.Scanner;
 
 public class NetworkUtils {
+    public static final String VK_URL = "https://vk.com/";
 
     private static final String VK_API_BASE_URL = "https://api.vk.com";
     private static final String VK_USER_GET = "/method/users.get";
@@ -21,6 +22,11 @@ public class NetworkUtils {
     private static final String PARAM_VERSION = "v";
     private static final String PARAM_TOKEN = "access_token";
 
+    public enum ResponseType{
+        String,
+        Bitmap
+    }
+// строит
     public static URL generateURL(String userIds) {
         Uri builtUri = Uri.parse(VK_API_BASE_URL + VK_USER_GET)
                 .buildUpon()//строить на основании того что перед
@@ -38,41 +44,56 @@ public class NetworkUtils {
         return url;
     }
 
-    public static String getResponseFromURL(URL url) throws IOException {
+    //получает ответ от сервера и возвращает обьект для downcasting'a в String или Bitmap
+    public static Object getResponseFromURL(URL url, ResponseType respType) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        Object result;
         try {
             InputStream in = urlConnection.getInputStream();
-            Scanner scanner = new Scanner(in);
-            scanner.useDelimiter("\\A");//\\A в рег выр означает начало строки, таким образом мы считаем построчно, по дефолту разделитель - пробел
-            boolean hasInput = scanner.hasNext();
-            if (hasInput) {
-                return scanner.next();
-            } else {
-                return null;
+            switch(respType){
+                case String:
+                    result = readString(in);
+                    break;
+                case Bitmap:
+                    result = readBitmap(in);
+                    break;
+                default:
+                    throw new Exception("unexpected ResponseType");
             }
-        } catch (UnknownHostException e) {
+            in.close();
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
-        } finally // блок выполняемый в любом случае
+        } finally
         {
             urlConnection.disconnect();
         }
+        return result;
     }
 
-    public static Bitmap getImageFromURL(URL url) throws IOException {
+    //считывает поток от сервера и возвращает строку
+    private static String readString(InputStream in) {
+        Scanner scanner = new Scanner(in);
+        scanner.useDelimiter("\\A");//\\A в рег выр означает начало строки, таким образом мы считаем построчно, по дефолту разделитель - пробел
+        boolean hasInput = scanner.hasNext();
+        if (hasInput) {
+            return scanner.next();
+        } else {
+            return null;
+        }
+    }
+    //считывает поток от сервера и возвращает Bitmap
+    private static Bitmap readBitmap(InputStream in) {
         Bitmap bitmap = null;
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         try {
-            InputStream in = urlConnection.getInputStream();
             bitmap = BitmapFactory.decodeStream(in);
-            in.close();
 
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } finally // блок выполняемый в любом случае
+        }catch (Exception e)
         {
-            urlConnection.disconnect();
+            e.printStackTrace();
         }
         return bitmap;
+
     }
 
 

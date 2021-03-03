@@ -50,6 +50,7 @@
             android:text="@string/error_message"
             android:visibility="invisible"
             android:layout_gravity="center"
+            android:gravity="center"
             />
 
             <ProgressBar

@@ -11,6 +11,8 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.vkinfo.utils.NetworkUtils;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         errorMessage.setVisibility(View.VISIBLE);
     }
 
+    //запрос к серверу ВК
     class VKQueryTask extends AsyncTask<URL, Void, String> {
         @Override
         protected void onPreExecute() {//делаем индикатор прогресса видимым, после выполнения запроса скроем его
@@ -46,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         {
             String response = null;
             try {
-                response = getResponseFromURL(urls[0]);
+                response = (String)getResponseFromURL(urls[0], NetworkUtils.ResponseType.String);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -73,8 +76,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
             loadingIndicator.setVisibility(View.INVISIBLE);
-
-
         }
     }
 
