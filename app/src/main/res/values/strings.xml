@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">VKInfo</string>
+    <string name="write_the_vk_id">Введите id Вконтакте</string>
+    <string name="search">Поиск</string>
+    <string name="error_message"> Произошла ошибка.\nВведите корректный id!</string>
+</resources>
