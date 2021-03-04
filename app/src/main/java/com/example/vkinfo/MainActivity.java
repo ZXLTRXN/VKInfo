@@ -98,7 +98,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(!searchField.getText().toString().contains(" ")) {
                     hideErrorText();
-                    URL generatedURL = generateURL(searchField.getText().toString());
+                    String[] values = {NetworkUtils.VALUE_ONLINE,NetworkUtils.VALUE_LASTSEEN,NetworkUtils.VALUE_PHOTO};
+                    URL generatedURL = generateURL(searchField.getText().toString(),values);
                     new VKQueryTask().execute(generatedURL);
                 }else showErrorText();
             }

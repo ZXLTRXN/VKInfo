@@ -3,6 +3,7 @@ package com.example.vkinfo.utils;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,16 +23,21 @@ public class NetworkUtils {
     private static final String PARAM_VERSION = "v";
     private static final String PARAM_TOKEN = "access_token";
 
+    public static final String VALUE_ONLINE="online";
+    public static final String VALUE_LASTSEEN="last_seen";
+    public static final String VALUE_PHOTO="photo_200";
+
     public enum ResponseType{
         String,
         Bitmap
     }
 // строит
-    public static URL generateURL(String userIds) {
+    public static URL generateURL(String userIds,String[] values) {
+        String valueString = TextUtils.join(",",values);
         Uri builtUri = Uri.parse(VK_API_BASE_URL + VK_USER_GET)
                 .buildUpon()//строить на основании того что перед
                 .appendQueryParameter(PARAM_USER_ID, userIds)
-                .appendQueryParameter(PARAM_FIELDS, "online"+ ","+ "last_seen" + "," + "photo_200" )
+                .appendQueryParameter(PARAM_FIELDS,  valueString) //"online"+ ","+ "last_seen" + "," + "photo_200"
                 .appendQueryParameter(PARAM_VERSION, "5.89")
                 .appendQueryParameter(PARAM_TOKEN, "c6744a9dc6744a9dc6744a9da6c60797b0cc674c6744a9d992f0561022e169bccacf630")
                 .build();
