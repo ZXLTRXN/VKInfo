@@ -3,10 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingStart="@dimen/horizontal_padding"
-    android:paddingEnd="@dimen/horizontal_padding"
-    android:paddingTop="@dimen/vertical_padding"
-    android:paddingBottom="@dimen/vertical_padding"
+    android:padding="@dimen/padding"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
@@ -22,8 +19,8 @@
         <FrameLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="9dp"
-            android:padding="5dp">
+            android:layout_marginTop="@dimen/margin"
+            android:padding="@dimen/min">
 
             <EditText
                 android:id="@+id/et_search_field"
@@ -32,8 +29,8 @@
                 android:hint="@string/write_the_vk_id"
                 android:inputType="text"
                 android:paddingRight="60dp"
-                android:paddingVertical="@dimen/vertical_padding"
-                android:textSize="25sp"
+                android:paddingVertical="@dimen/padding"
+                android:textSize="@dimen/text_size_l"
                 />
 
             <Button
@@ -41,42 +38,36 @@
                 android:layout_width="60dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="right|center_vertical"
-                android:layout_marginVertical="4dp"
+                android:layout_marginVertical="@dimen/min"
                 android:text="X"
-                android:textSize="20sp"
+                android:textSize="@dimen/text_size_mid"
                 android:textColor="@android:color/darker_gray"/>
 
         </FrameLayout>
     </LinearLayout>
+
     <Button
         android:id="@+id/b_exe"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:padding="25dp"
-        android:textSize="15sp"
+        android:padding="@dimen/padding"
+        android:textSize="@dimen/text_size_min"
         android:text="@string/search" />
 
-    <FrameLayout
+    <ProgressBar
+        android:id="@+id/pb_loading_indicator"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_margin="@dimen/margin"
+        android:layout_gravity="bottom|center"
+        android:visibility="invisible"/>
+
+
+    <ListView
+        android:id="@+id/lv_saved_ids"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/margin"/>
 
-        <TextView
-            android:id="@+id/tv_error_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="25sp"
-            android:padding="16dp"
-            android:visibility="invisible"
-            android:layout_gravity="center"
-            android:gravity="center"
-            />
-
-            <ProgressBar
-                android:id="@+id/pb_loading_indicator"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:layout_gravity="bottom|center"
-                android:visibility="invisible"/>
-    </FrameLayout>
 </LinearLayout>

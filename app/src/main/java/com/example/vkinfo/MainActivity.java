@@ -4,13 +4,21 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,18 +32,21 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 
 
 import static com.example.vkinfo.utils.NetworkUtils.generateURL;
 import static com.example.vkinfo.utils.NetworkUtils.getResponseFromURL;
+
+
 
 public class MainActivity extends AppCompatActivity {
 
     private EditText searchField;
     private Button searchClear;
     private Button searchButton;
-    private TextView errorMessage;
     private ProgressBar loadingIndicator;
+    private ListView idsList;
 
 
     enum ErrorType{
@@ -47,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), R.string.error_message_id, Toast.LENGTH_SHORT).show();
         }else
         {
-            Toast.makeText(getApplicationContext(), R.string.error_message_connection, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), R.string.error_message_connection, Toast.LENGTH_LONG).show();
         }
 
     }
@@ -83,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (!response.equals("{\"response\":[]}") && !jsonResponse.has("error")) {
-                    errorMessage.setVisibility(View.INVISIBLE);
                     Intent userData = new Intent(MainActivity.this, UserActivity.class);
                     userData.putExtra(UserActivity.RESPONSE, response);
                     startActivity(userData);
@@ -98,6 +108,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,8 +117,21 @@ public class MainActivity extends AppCompatActivity {
         searchField = findViewById(R.id.et_search_field);
         searchClear = findViewById(R.id.et_search_clear);
         searchButton = findViewById(R.id.b_exe);
-        errorMessage = findViewById(R.id.tv_error_message);
         loadingIndicator = findViewById(R.id.pb_loading_indicator);
+        idsList = findViewById(R.id.lv_saved_ids);
+
+        //список
+        final ArrayList<String> ids = new ArrayList<>();
+        ids.add("я");
+        ids.add("ты");
+
+        // Создаём адаптер ArrayAdapter, чтобы привязать массив к ListView
+        final ArrayAdapter<String> adapter;
+        adapter = new ArrayAdapter<>(this, R.layout.list_item, ids);
+        // Привяжем массив через адаптер к ListView
+        idsList.setAdapter(adapter);
+
+
 
         View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override
@@ -126,7 +151,6 @@ public class MainActivity extends AppCompatActivity {
         };
 
 
-
         View.OnClickListener onClearListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -134,7 +158,13 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-
+//        AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener(){
+//
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//
+//            }
+//        }
 
         searchButton.setOnClickListener(onClickListener);
         searchClear.setOnClickListener(onClearListener);

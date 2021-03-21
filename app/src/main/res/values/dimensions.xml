@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="horizontal_padding">16dp</dimen>
-    <dimen name="vertical_padding">16dp</dimen>
+    <dimen name="min">5dp</dimen>
+    <dimen name="padding">15dp</dimen>
     <dimen name="margin">10dp</dimen>
+    <dimen name="text_size_min">16sp</dimen>
+    <dimen name="text_size_mid">20sp</dimen>
+    <dimen name="text_size_l">25sp</dimen>
 </resources>
