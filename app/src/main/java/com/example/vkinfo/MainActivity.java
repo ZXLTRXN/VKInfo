@@ -2,14 +2,19 @@ package com.example.vkinfo;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
 
 import com.example.vkinfo.utils.NetworkUtils;
 
@@ -19,8 +24,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 import static com.example.vkinfo.utils.NetworkUtils.generateURL;
 import static com.example.vkinfo.utils.NetworkUtils.getResponseFromURL;
@@ -34,13 +38,20 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar loadingIndicator;
 
 
-    private void showErrorText() {
-        errorMessage.setVisibility(View.VISIBLE);
+    enum ErrorType{
+        Id,
+        Connection
+    }
+    private void showErrorText(ErrorType et) {
+        if(et == ErrorType.Id){
+            Toast.makeText(getApplicationContext(), R.string.error_message_id, Toast.LENGTH_SHORT).show();
+        }else
+        {
+            Toast.makeText(getApplicationContext(), R.string.error_message_connection, Toast.LENGTH_SHORT).show();
+        }
+
     }
 
-    private void hideErrorText() {
-        errorMessage.setVisibility(View.INVISIBLE);
-    }
 
     //запрос к серверу ВК
     class VKQueryTask extends AsyncTask<URL, Void, String> {
@@ -64,21 +75,25 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String response) {
 
             JSONObject jsonResponse = null;
-            try {
-                jsonResponse = new JSONObject(response);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            if(response != null) {
+                try {
+                    jsonResponse = new JSONObject(response);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
-            if (response != null && response != "" && !jsonResponse.has("error")) {
-                errorMessage.setVisibility(View.INVISIBLE);
-                Intent userData = new Intent(MainActivity.this, UserActivity.class);
-                userData.putExtra(UserActivity.RESPONSE, response);
-                startActivity(userData);
-            } else {
-                showErrorText();
+                if (!response.equals("{\"response\":[]}") && !jsonResponse.has("error")) {
+                    errorMessage.setVisibility(View.INVISIBLE);
+                    Intent userData = new Intent(MainActivity.this, UserActivity.class);
+                    userData.putExtra(UserActivity.RESPONSE, response);
+                    startActivity(userData);
+                } else {
+                    showErrorText(ErrorType.Id);
+                }
+            }else
+            {
+                showErrorText(ErrorType.Connection);
             }
-
             loadingIndicator.setVisibility(View.INVISIBLE);
         }
     }
@@ -97,13 +112,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(!searchField.getText().toString().contains(" ")) {
-                    hideErrorText();
                     String[] values = {NetworkUtils.VALUE_ONLINE,NetworkUtils.VALUE_LASTSEEN,NetworkUtils.VALUE_PHOTO};
-                    URL generatedURL = generateURL(searchField.getText().toString(),values);
+                    String id = searchField.getText().toString();
+                    if(searchField.getText().toString().contains("vk.com/"))
+                    {
+                        int index = id.indexOf("vk.com/")+7;
+                        id = id.substring(index);
+                    }
+                    URL generatedURL = generateURL(id,values);
                     new VKQueryTask().execute(generatedURL);
-                }else showErrorText();
+                }else showErrorText(ErrorType.Id);
             }
         };
+
+
 
         View.OnClickListener onClearListener = new View.OnClickListener() {
             @Override
@@ -111,6 +133,8 @@ public class MainActivity extends AppCompatActivity {
                 searchField.setText("");
             }
         };
+
+
 
         searchButton.setOnClickListener(onClickListener);
         searchClear.setOnClickListener(onClearListener);

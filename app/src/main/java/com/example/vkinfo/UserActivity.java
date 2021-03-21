@@ -144,7 +144,7 @@ public class UserActivity extends AppCompatActivity {
 
             if(!userInfo.has("deactivated")) {
                 lastSeen = userInfo.getJSONObject("last_seen");
-                seenTime = lastSeen.getLong("time");
+                seenTime = lastSeen.getLong("time");// в секундах
                 platform = lastSeen.getInt("platform");
 
                 if(isOnline == 1){
@@ -153,8 +153,24 @@ public class UserActivity extends AppCompatActivity {
                 {
                     if(isOnline == 0) {
                         platformString = (platform < 6) ? "мобильного устройства" : "браузера";
-                        String dateIfFormat = new java.text.SimpleDateFormat("HH:mm, dd/MM/yyyy").format(new Date(seenTime * 1000));
-                        statusString = "Был в сети \n" + dateIfFormat + "\nc " + platformString;
+                        long currentTime = System.currentTimeMillis();// уже домножено на 1000, т.е в миллисекундах
+                        String currentDateFormat = new java.text.SimpleDateFormat("dd.MM.yyyy").format(new Date(currentTime));
+                        String yesterdayDateFormat = new java.text.SimpleDateFormat("dd.MM.yyyy").format(new Date(currentTime-86400000));
+
+                        String seenTimeDateFormat = new java.text.SimpleDateFormat("dd.MM.yyyy").format(new Date(seenTime * 1000));
+
+                        String seenTimeFormat = new java.text.SimpleDateFormat("HH:mm").format(new Date(seenTime * 1000));
+                        if(currentDateFormat.equals(seenTimeDateFormat))
+                        {
+                            seenTimeDateFormat = "сегодня";
+                        }
+                        if(yesterdayDateFormat.equals(seenTimeDateFormat))
+                        {
+                            seenTimeDateFormat = "вчера";
+                        }
+
+                        //String dateIfFormat = new java.text.SimpleDateFormat("HH:mm, dd/MM/yyyy").format(new Date(seenTime * 1000));
+                        statusString = "Пользователь был в сети \n" + seenTimeDateFormat + " в " + seenTimeFormat + "\nc " + platformString;
                     }else throw new Exception("undefined Online status");
                 }
             }else{
