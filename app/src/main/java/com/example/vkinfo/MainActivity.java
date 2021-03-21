@@ -25,14 +25,19 @@ import android.widget.Toast;
 
 
 import com.example.vkinfo.utils.NetworkUtils;
+import com.example.vkinfo.utils.StorageUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 import static com.example.vkinfo.utils.NetworkUtils.generateURL;
@@ -46,7 +51,10 @@ public class MainActivity extends AppCompatActivity {
     private Button searchClear;
     private Button searchButton;
     private ProgressBar loadingIndicator;
-    private ListView idsList;
+    private ListView usersList;
+
+    private StorageUtils su;
+    ArrayAdapter<String> adapter;
 
 
     enum ErrorType{
@@ -118,19 +126,18 @@ public class MainActivity extends AppCompatActivity {
         searchClear = findViewById(R.id.et_search_clear);
         searchButton = findViewById(R.id.b_exe);
         loadingIndicator = findViewById(R.id.pb_loading_indicator);
-        idsList = findViewById(R.id.lv_saved_ids);
+        usersList = findViewById(R.id.lv_saved_ids);
 
-        //список
-        final ArrayList<String> ids = new ArrayList<>();
-        ids.add("я");
-        ids.add("ты");
+        su=new StorageUtils(getApplicationContext());
+        final ArrayList<String> users = (ArrayList<String>)su.getUsersList();
+        if(users.size() != 0)
+        {
+            // Создаём адаптер ArrayAdapter, чтобы привязать массив к ListView
 
-        // Создаём адаптер ArrayAdapter, чтобы привязать массив к ListView
-        final ArrayAdapter<String> adapter;
-        adapter = new ArrayAdapter<>(this, R.layout.list_item, ids);
-        // Привяжем массив через адаптер к ListView
-        idsList.setAdapter(adapter);
-
+            adapter = new ArrayAdapter<>(this, R.layout.list_item, users);
+            // Привяжем массив через адаптер к ListView
+            usersList.setAdapter(adapter);
+        }
 
 
         View.OnClickListener onClickListener = new View.OnClickListener() {
@@ -158,16 +165,35 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-//        AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener(){
-//
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//
-//            }
-//        }
+        AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener(){
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //User usr = new User(getApplicationContext());
+                String userId = su.getUserIdByIndex(position);
+                String[] values = {NetworkUtils.VALUE_ONLINE,NetworkUtils.VALUE_LASTSEEN,NetworkUtils.VALUE_PHOTO};
+                URL generatedURL = generateURL(userId,values);
+                new VKQueryTask().execute(generatedURL);
+            }
+        };
+
+
+        AdapterView.OnItemLongClickListener onItemLongClickListener = new AdapterView.OnItemLongClickListener(){
+
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                su.deleteUserByIndex(position);
+                //adapter.notifyDataSetChanged();
+                //parent.refreshDrawableState();
+
+                return true;
+            }
+        };
 
         searchButton.setOnClickListener(onClickListener);
         searchClear.setOnClickListener(onClearListener);
+        usersList.setOnItemClickListener(onItemClickListener);
+        usersList.setOnItemLongClickListener(onItemLongClickListener);
 
     }
 }

@@ -2,22 +2,32 @@ package com.example.vkinfo;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.vkinfo.utils.NetworkUtils;
+import com.example.vkinfo.utils.StorageUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -38,6 +48,8 @@ public class UserActivity extends AppCompatActivity {
     private TextView userStatus;
     private Button openSiteButton;
     private ImageView userPhoto;
+
+    private StorageUtils su;
 
 
     //загрузка фотографии по ссылке из response
@@ -74,6 +86,7 @@ public class UserActivity extends AppCompatActivity {
         userStatus = findViewById(R.id.tv_result_status);
         openSiteButton = findViewById(R.id.btn_open_site);
 
+        su=new StorageUtils(getApplicationContext());
         String response;
 
         Bundle bundle = getIntent().getExtras();
@@ -121,7 +134,6 @@ public class UserActivity extends AppCompatActivity {
         String nameString = "";
         String statusString = "";
 
-
         //временные переменные
         String firstName = null;
         String lastName = null;
@@ -147,6 +159,7 @@ public class UserActivity extends AppCompatActivity {
                 seenTime = lastSeen.getLong("time");// в секундах
                 platform = lastSeen.getInt("platform");
 
+                //обработка данных, чтобы вывести в формате
                 if(isOnline == 1){
                     statusString = "В сети";
                 }else
@@ -178,11 +191,13 @@ public class UserActivity extends AppCompatActivity {
             }
 
             id = userInfo.getString("id");
+            if(!userInfo.has("deactivated")){
+                User user = new User(id, firstName, lastName, 0);
+                su.saveUser(user);
+            }
+
             photoURL = userInfo.getString("photo_200");
-
             nameString += "Имя: " + firstName + "\nФамилия: " + lastName;
-
-
 
             infoStrings[0] = nameString;
             infoStrings[1] = statusString;
@@ -193,4 +208,8 @@ public class UserActivity extends AppCompatActivity {
         }
 
     }
+
+
+
+
 }
