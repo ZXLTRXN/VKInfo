@@ -107,9 +107,9 @@ public class UserActivity extends AppCompatActivity {
 
 
         View.OnClickListener onClickListener = new View.OnClickListener() {
-
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 Pattern pattern = Pattern.compile("\\d+");
                 Matcher matcher = pattern.matcher(id);
                 Uri userURL=null;
@@ -126,7 +126,7 @@ public class UserActivity extends AppCompatActivity {
             }
         };
         openSiteButton.setOnClickListener(onClickListener);
-
+        setResult(RESULT_OK);
     }
 //получает из response информацию о имени, онлайне, аватарке, помещая в переданный массив строк
     private void parseResponse(String response, String[] infoStrings){

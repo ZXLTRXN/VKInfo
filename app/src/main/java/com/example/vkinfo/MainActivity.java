@@ -44,7 +44,6 @@ import static com.example.vkinfo.utils.NetworkUtils.generateURL;
 import static com.example.vkinfo.utils.NetworkUtils.getResponseFromURL;
 
 
-
 public class MainActivity extends AppCompatActivity {
 
     private EditText searchField;
@@ -55,7 +54,8 @@ public class MainActivity extends AppCompatActivity {
 
     private StorageUtils su;
     ArrayAdapter<String> adapter;
-
+    ArrayList<String> users;
+    static final private int IS_UPDATED = 0;
 
     enum ErrorType{
         Id,
@@ -104,7 +104,8 @@ public class MainActivity extends AppCompatActivity {
                 if (!response.equals("{\"response\":[]}") && !jsonResponse.has("error")) {
                     Intent userData = new Intent(MainActivity.this, UserActivity.class);
                     userData.putExtra(UserActivity.RESPONSE, response);
-                    startActivity(userData);
+
+                    startActivityForResult(userData,IS_UPDATED);
                 } else {
                     showErrorText(ErrorType.Id);
                 }
@@ -116,7 +117,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == IS_UPDATED) {
+            users = (ArrayList<String>)su.getUsersList();
+            //adapter.notifyDataSetChanged();
+            recreate();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,17 +139,15 @@ public class MainActivity extends AppCompatActivity {
         usersList = findViewById(R.id.lv_saved_ids);
 
         su=new StorageUtils(getApplicationContext());
-        final ArrayList<String> users = (ArrayList<String>)su.getUsersList();
+        users = (ArrayList<String>)su.getUsersList();
         if(users.size() != 0)
         {
             // Создаём адаптер ArrayAdapter, чтобы привязать массив к ListView
-
             adapter = new ArrayAdapter<>(this, R.layout.list_item, users);
-            // Привяжем массив через адаптер к ListView
             usersList.setAdapter(adapter);
         }
 
-
+        //поиск
         View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -157,14 +165,15 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-
-        View.OnClickListener onClearListener = new View.OnClickListener() {
+        //очистка editview при нажатии кнопки поиск
+        View.OnClickListener onClickClear = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 searchField.setText("");
             }
         };
 
+        //нажатие на элемент listview
         AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener(){
 
             @Override
@@ -177,21 +186,22 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-
+        // удаление элемента listview
         AdapterView.OnItemLongClickListener onItemLongClickListener = new AdapterView.OnItemLongClickListener(){
 
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 su.deleteUserByIndex(position);
-                //adapter.notifyDataSetChanged();
-                //parent.refreshDrawableState();
+                users.clear();
+                users.addAll((ArrayList<String>)su.getUsersList());
+                adapter.notifyDataSetChanged();
 
                 return true;
             }
         };
 
         searchButton.setOnClickListener(onClickListener);
-        searchClear.setOnClickListener(onClearListener);
+        searchClear.setOnClickListener(onClickClear);
         usersList.setOnItemClickListener(onItemClickListener);
         usersList.setOnItemLongClickListener(onItemLongClickListener);
 

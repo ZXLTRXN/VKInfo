@@ -19,9 +19,27 @@ import java.util.List;
 public class StorageUtils {
 
     private Context context;
+    private JSONArray userArr;
 
     public StorageUtils(Context context) {
         this.context = context;
+
+        String dataFromFile;
+        try{
+            dataFromFile = readFile();
+            if (dataFromFile.length() == 0)
+            {
+                userArr = new JSONArray();
+            } else
+            {
+                userArr = new JSONArray(dataFromFile);
+            }
+
+        }catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
     }
 
     public String readFile() throws Exception
@@ -49,21 +67,28 @@ public class StorageUtils {
         return data;
     }
 
+    public int writeFile() throws Exception
+    {
+        String fileName = context.getResources().getString(R.string.File_with_users);
+        File internalStorageDir = context.getFilesDir();
+        File userStorage = new File(internalStorageDir, fileName);
+
+        FileOutputStream fos = new FileOutputStream(userStorage);
+        fos.write(userArr.toString().getBytes());
+        fos.close();
+        return 0;
+    }
+
     public List<String> getUsersList()
     {
         List<String> userNames = new ArrayList<>();
-        String dataFromFile;
-
         try
         {
-            dataFromFile = readFile();
-            JSONArray userArr = new JSONArray(dataFromFile);
             for (int j=0; j<userArr.length();j++)
             {
                 JSONObject obj = userArr.getJSONObject(j);
                 userNames.add(obj.getString("firstName") + ' ' + obj.getString("lastName"));
             }
-
         }catch(Exception e)
         {
             e.printStackTrace();
@@ -78,8 +103,8 @@ public class StorageUtils {
 
         try
         {
-            dataFromFile = readFile();
-            JSONArray userArr = new JSONArray(dataFromFile);
+//            dataFromFile = readFile();
+//            JSONArray userArr = new JSONArray(dataFromFile);
             JSONObject obj = userArr.getJSONObject(index);
             id = obj.getString("id");
 
@@ -93,40 +118,22 @@ public class StorageUtils {
     public int saveUser(User user)
     {
         try {
-            ///internal storage
             JSONObject userObject = new JSONObject(user.toString());
 
-            String fileName = context.getResources().getString(R.string.File_with_users);
-            File internalStorageDir = context.getFilesDir();
-            File userStorage = new File(internalStorageDir, fileName);
-
-            String data = readFile();
-
-            JSONArray userArr;
-
             boolean userExists = false;
-
-            if (data.length() == 0) {
-                userArr = new JSONArray();
-            } else {
-                userArr = new JSONArray(data);
-                for (int j = 0; j < userArr.length(); j++) {
-                    JSONObject obj = userArr.getJSONObject(j);
-                    if (obj.getString("id").equals(user.getId()))//////////////////////////////////////////смена имени?!
-                    {
-                        userExists = true;
-                        break;
-                    }
+            for (int j = 0; j < userArr.length(); j++)
+            {
+                JSONObject obj = userArr.getJSONObject(j);
+                if (obj.getString("id").equals(user.getId()))//////////////////////////////////////////смена имени?!
+                {
+                    userExists = true;
+                    break;
                 }
             }
-
             if (!userExists) {
-                FileOutputStream fos = new FileOutputStream(userStorage);
                 userArr.put(userObject);
-                fos.write(userArr.toString().getBytes());
-                fos.close();
+                writeFile();
             }
-
         }catch(Exception e)
         {
             e.printStackTrace();
@@ -137,27 +144,16 @@ public class StorageUtils {
 
     public int deleteUserByIndex(int index)
     {
-        String dataFromFile;
         String id=null;
-
-        String fileName = context.getResources().getString(R.string.File_with_users);
-        File internalStorageDir = context.getFilesDir();
-        File userStorage = new File(internalStorageDir, fileName);
-
         try
         {
-            dataFromFile = readFile();
-            JSONArray userArr = new JSONArray(dataFromFile);
             Object res = userArr.remove(index);
 
             if(res == null) {
                 return 1;
             }
 
-            FileOutputStream fos = new FileOutputStream(userStorage);
-            fos.write(userArr.toString().getBytes());
-            fos.close();
-
+            writeFile();
         }catch(Exception e)
         {
             e.printStackTrace();
