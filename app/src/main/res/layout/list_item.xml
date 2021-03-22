@@ -5,6 +5,6 @@
     android:layout_height="match_parent"
     android:paddingRight="40dp"
     android:padding="@dimen/padding"
-    android:textSize="@dimen/text_size_min">
+    android:textSize="@dimen/text_size_mid">
 </TextView>
 

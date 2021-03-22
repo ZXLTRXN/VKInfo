@@ -122,8 +122,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == IS_UPDATED) {
-            users = (ArrayList<String>)su.getUsersList();
-            //adapter.notifyDataSetChanged();
+            //users = (ArrayList<String>)su.getUsersList();
             recreate();
         }
     }

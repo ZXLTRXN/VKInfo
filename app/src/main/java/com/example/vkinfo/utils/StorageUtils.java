@@ -10,9 +10,12 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +45,7 @@ public class StorageUtils {
 
     }
 
-    public String readFile() throws Exception
+    private String readFile() throws Exception
     {
         String fileName = context.getResources().getString(R.string.File_with_users);
         File internalStorageDir = context.getFilesDir();
@@ -53,28 +56,29 @@ public class StorageUtils {
         }
 
         FileInputStream fis = new FileInputStream(userStorage);
-        BufferedInputStream bis = new BufferedInputStream(fis, 200);
+        InputStreamReader isr  = new InputStreamReader(fis, "utf-8");
+        BufferedReader br =new BufferedReader(isr);
 
         String data = "";
+        data += br.readLine();
 
-        int ch;
-        while ((ch = bis.read()) != -1) {
-            data += (char) ch;
-        }
-
-        bis.close();
+        br.close();
+        isr.close();
         fis.close();
         return data;
     }
 
-    public int writeFile() throws Exception
+    private int writeFile() throws Exception
     {
         String fileName = context.getResources().getString(R.string.File_with_users);
         File internalStorageDir = context.getFilesDir();
         File userStorage = new File(internalStorageDir, fileName);
 
         FileOutputStream fos = new FileOutputStream(userStorage);
-        fos.write(userArr.toString().getBytes());
+        OutputStreamWriter osw = new OutputStreamWriter(fos, "utf-8");
+        osw.write(userArr.toString());
+
+        osw.close();
         fos.close();
         return 0;
     }
