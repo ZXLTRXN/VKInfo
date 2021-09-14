@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -109,6 +110,8 @@ public class UserActivity extends AppCompatActivity {
                 Intent openProfile = new Intent(Intent.ACTION_VIEW, userURL);
                 if (openProfile.resolveActivity(getPackageManager()) != null) {
                     startActivity(openProfile);
+                }else{
+                    Log.e("UserActivity","getPackageManager is null");
                 }
             }
         };
